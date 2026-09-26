@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video ⇄ Frames</title>
+<meta name="theme-color" content="#C2801F">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <h1 data-i18n="appTitle">Video ⇄ Frames</h1>
+    <div class="topbar-controls">
+      <button type="button" class="link-btn" id="installBtn" data-i18n="installApp" hidden>Install app</button>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="id">ID</button>
+      </div>
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+        <svg class="icon icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"></path></svg>
+        <svg class="icon icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"></circle><line x1="12" y1="2" x2="12" y2="5"></line><line x1="12" y1="19" x2="12" y2="22"></line><line x1="2" y1="12" x2="5" y2="12"></line><line x1="19" y1="12" x2="22" y2="12"></line><line x1="4.9" y1="4.9" x2="7" y2="7"></line><line x1="17" y1="17" x2="19.1" y2="19.1"></line><line x1="4.9" y1="19.1" x2="7" y2="17"></line><line x1="17" y1="7" x2="19.1" y2="4.9"></line></svg>
+      </button>
+    </div>
+  </header>
+
+  <p class="tagline" data-i18n="tagline">Turn a video into frames, or frames into a video — all in your browser.</p>
+
+  <div class="tabs" role="tablist">
+    <button type="button" class="tab" role="tab" aria-selected="true" data-panel="v2f" data-i18n="tabVideoToFrames">Video to frames</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-panel="f2v" data-i18n="tabFramesToVideo">Frames to video</button>
+  </div>
+
+  <section id="panel-v2f" class="panel" role="tabpanel">
+    <div class="dropzone" id="dropzoneVideo" tabindex="0" role="button">
+      <input type="file" id="videoInput" accept="video/*" hidden>
+      <svg class="upload-icon" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"></path><path d="M7 9l5-5 5 5"></path><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path></svg>
+      <p class="drop-title" data-i18n="dropVideoTitle">Drop a video here</p>
+      <p class="drop-hint" data-i18n="dropVideoHint">or click to browse — MP4, WebM, MOV</p>
+    </div>
+
+    <div class="file-info" id="videoFileInfo" hidden>
+      <span class="file-name" id="videoFileName"></span>
+      <button type="button" class="link-btn" id="videoRemoveBtn" data-i18n="removeFile">Remove</button>
+    </div>
+
+    <video id="videoSource" class="preview-video" controls playsinline preload="metadata" hidden></video>
+
+    <div class="trim-row" id="trimRow" hidden>
+      <div class="field">
+        <label for="trimStart" data-i18n="trimStartLabel">Start</label>
+        <div class="trim-input">
+          <input type="number" id="trimStart" min="0" step="0.1" value="0">
+          <span class="trim-unit">s</span>
+          <button type="button" class="link-btn" id="trimStartNow" data-i18n="trimNow">Now</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="trimEnd" data-i18n="trimEndLabel">End</label>
+        <div class="trim-input">
+          <input type="number" id="trimEnd" min="0" step="0.1" value="0">
+          <span class="trim-unit">s</span>
+          <button type="button" class="link-btn" id="trimEndNow" data-i18n="trimNow">Now</button>
+        </div>
+      </div>
+      <p class="hint trim-hint" id="trimHint"></p>
+    </div>
+
+    <div class="controls-row">
+      <div class="field">
+        <label for="extractMode" data-i18n="extractModeLabel">Extraction mode</label>
+        <select id="extractMode">
+          <option value="fps" data-i18n="extractModeFps">Fixed FPS</option>
+          <option value="nth" data-i18n="extractModeNth">Every Nth native frame</option>
+        </select>
+        <p class="hint" id="nthUnsupportedHint" hidden></p>
+      </div>
+      <div class="field" id="fpsField">
+        <label for="videoFps" data-i18n="fpsLabel">Frames per second</label>
+        <div class="stepper">
+          <button type="button" class="stepper-btn" data-target="videoFps" data-step="-1">−</button>
+          <input type="number" id="videoFps" value="12" min="1" max="60">
+          <button type="button" class="stepper-btn" data-target="videoFps" data-step="1">+</button>
+        </div>
+      </div>
+      <div class="field" id="nthField" hidden>
+        <label for="videoNth" data-i18n="nthLabel">Every Nth frame</label>
+        <div class="stepper">
+          <button type="button" class="stepper-btn" data-target="videoNth" data-step="-1">−</button>
+          <input type="number" id="videoNth" value="3" min="1" max="60">
+          <button type="button" class="stepper-btn" data-target="videoNth" data-step="1">+</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="videoFormat" data-i18n="formatLabel">Frame format</label>
+        <select id="videoFormat">
+          <option value="image/png">PNG</option>
+          <option value="image/jpeg">JPEG</option>
+        </select>
+      </div>
+    </div>
+
+    <button type="button" class="primary-btn" id="extractBtn" data-i18n="extractButton">Extract frames</button>
+
+    <p class="status" id="v2fStatus" aria-live="polite"></p>
+    <div class="progress" id="v2fProgress" hidden><div class="progress-fill" id="v2fProgressFill"></div></div>
+
+    <div class="filmstrip-wrap" id="v2fResults" hidden>
+      <div class="filmstrip-toolbar">
+        <span class="result-meta" id="v2fMeta"></span>
+        <span class="filmstrip-toolbar-actions">
+          <button type="button" class="link-btn" id="v2fSelectAllBtn" data-i18n="selectAll">Select all</button>
+          <button type="button" class="link-btn" id="v2fSelectNoneBtn" data-i18n="selectNone">Select none</button>
+        </span>
+      </div>
+      <div class="filmstrip" id="v2fFilmstrip"></div>
+      <div class="result-bar">
+        <span class="result-meta" id="v2fSelectedMeta"></span>
+        <button type="button" class="primary-btn" id="downloadZipBtn" data-i18n="downloadZip" style="margin-top:0;">Download frames (.zip)</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="panel-f2v" class="panel" role="tabpanel" hidden>
+    <div class="dropzone" id="dropzoneFrames" tabindex="0" role="button">
+      <input type="file" id="framesInput" accept="image/*" multiple hidden>
+      <svg class="upload-icon" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"></path><path d="M7 9l5-5 5 5"></path><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path></svg>
+      <p class="drop-title" data-i18n="dropFramesTitle">Drop image frames here</p>
+      <p class="drop-hint" data-i18n="dropFramesHint">or click to browse — PNG or JPG, multiple files</p>
+    </div>
+
+    <div class="filmstrip-wrap" id="f2vList" hidden>
+      <div class="filmstrip" id="f2vFilmstrip"></div>
+      <p class="hint" data-i18n="dragReorderHint">Drag thumbnails to reorder them.</p>
+      <div class="result-bar">
+        <span class="result-meta" id="f2vMeta"></span>
+        <button type="button" class="link-btn" id="f2vClearBtn" data-i18n="clearAll">Clear</button>
+      </div>
+    </div>
+
+    <div class="controls-row">
+      <div class="field">
+        <label for="framesFps" data-i18n="fpsLabel">Frames per second</label>
+        <div class="stepper">
+          <button type="button" class="stepper-btn" data-target="framesFps" data-step="-1">−</button>
+          <input type="number" id="framesFps" value="24" min="1" max="60">
+          <button type="button" class="stepper-btn" data-target="framesFps" data-step="1">+</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="framesFormat" data-i18n="outputFormatLabel">Output format</label>
+        <select id="framesFormat">
+          <option value="mp4" data-i18n="formatMp4">MP4</option>
+          <option value="webm" data-i18n="formatWebm">WebM</option>
+          <option value="gif" data-i18n="formatGif">GIF</option>
+        </select>
+        <p class="hint" id="framesFormatHint" hidden></p>
+      </div>
+      <div class="field">
+        <label for="qualitySelect" data-i18n="qualityLabel">Quality</label>
+        <select id="qualitySelect">
+          <option value="low" data-i18n="qualityLow">Low</option>
+          <option value="medium" selected data-i18n="qualityMedium">Medium</option>
+          <option value="high" data-i18n="qualityHigh">High</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field audio-field" id="audioField">
+      <label data-i18n="audioLabel">Background audio (optional)</label>
+      <div class="audio-row">
+        <input type="file" id="audioInput" accept="audio/*" hidden>
+        <button type="button" class="link-btn" id="audioPickBtn" data-i18n="audioChoose">Choose file</button>
+        <span class="file-name" id="audioFileName"></span>
+        <button type="button" class="link-btn" id="audioRemoveBtn" data-i18n="removeFile" hidden>Remove</button>
+      </div>
+    </div>
+
+    <p class="hint" id="sizeEstimateHint"></p>
+
+    <button type="button" class="primary-btn" id="buildBtn" data-i18n="buildButton">Build video</button>
+    <p class="hint" data-i18n="buildingHint">Building takes about as long as the finished video plays.</p>
+
+    <p class="status" id="f2vStatus" aria-live="polite"></p>
+    <div class="progress" id="f2vProgress" hidden><div class="progress-fill" id="f2vProgressFill"></div></div>
+
+    <div class="video-result" id="f2vResult" hidden>
+      <video id="f2vPreview" controls playsinline hidden></video>
+      <img id="f2vPreviewImg" alt="" hidden>
+      <div class="result-bar">
+        <span class="result-meta" id="f2vResultMeta"></span>
+        <button type="button" class="primary-btn" id="downloadVideoBtn" data-i18n="downloadVideo" style="margin-top:0;">Download video</button>
+      </div>
+    </div>
+  </section>
+
+  <p class="note" data-i18n="outputNote">Everything runs on your device — nothing is uploaded.</p>
+
+  <canvas id="workCanvas" class="sr-hidden"></canvas>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
