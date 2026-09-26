@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FrameLab</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="bar">
+<div class="bar-in">
+<strong class="brand">FrameLab</strong>
+<div class="tabs" role="tablist">
+<button type="button" role="tab" id="tab-v2f" aria-controls="panel-v2f" aria-selected="true" data-i18n="tabV2F"></button>
+<button type="button" role="tab" id="tab-f2v" aria-controls="panel-f2v" aria-selected="false" tabindex="-1" data-i18n="tabF2V"></button>
+</div>
+<div class="ctl">
+<div class="seg" role="group" aria-label="Language">
+<button type="button" data-lang="en" aria-pressed="true">EN</button>
+<button type="button" data-lang="id" aria-pressed="false">ID</button>
+</div>
+<button type="button" class="btn sm" id="themeBtn" data-i18n-aria="toggleTheme"></button>
+</div>
+</div>
+</header>
+<main class="wrap">
+<section id="panel-v2f" role="tabpanel" aria-labelledby="tab-v2f">
+<div class="drop" id="vDrop" role="button" tabindex="0" aria-describedby="vFmts">
+<p class="dt" data-i18n="dropVideo"></p>
+<p data-i18n="orBrowse"></p>
+<p class="hint" id="vFmts"></p>
+</div>
+<input type="file" id="vInput" accept="video/*" hidden>
+<p class="err" id="vErr" role="alert"></p>
+<div id="vWork" hidden>
+<div class="two">
+<video id="vPrev" controls muted playsinline></video>
+<dl class="info" id="vInfo"></dl>
+</div>
+<div class="row">
+<label for="vFps" data-i18n="fps"></label>
+<select id="vFps"></select>
+<input type="number" id="vFpsC" min="1" max="240" step="any" value="30" hidden aria-label="FPS">
+</div>
+<p class="err" id="vFpsErr" role="alert"></p>
+<p class="note" id="vNote"></p>
+<div class="row">
+<button type="button" class="btn pri" id="vGo" data-i18n="extract"></button>
+<button type="button" class="btn" id="vReset" data-i18n="reset"></button>
+</div>
+<div class="prog" id="vProg" hidden>
+<p class="stat" role="status"></p>
+<progress max="100" value="0"></progress>
+<div class="row sp"><span class="det"></span><span class="pct"></span><button type="button" class="btn sm cancel" data-i18n="cancel"></button></div>
+</div>
+<div id="gal" hidden>
+<div class="row">
+<span id="selCount" aria-live="polite"></span>
+<button type="button" class="btn sm" id="selAll" data-i18n="selAll"></button>
+<button type="button" class="btn sm" id="selNone" data-i18n="selNone"></button>
+<button type="button" class="btn sm" id="selInv" data-i18n="selInv"></button>
+<button type="button" class="btn sm" id="dlSel" data-i18n="dlSel"></button>
+<button type="button" class="btn sm pri" id="dlZip" data-i18n="dlZip"></button>
+<span id="zipStat" role="status"></span>
+</div>
+<ul class="gal" id="galList"></ul>
+<div class="row pager" id="pager">
+<button type="button" class="btn sm" id="pgPrev" data-i18n="prev"></button>
+<span id="pgInfo"></span>
+<button type="button" class="btn sm" id="pgNext" data-i18n="next"></button>
+</div>
+</div>
+</div>
+</section>
+<section id="panel-f2v" role="tabpanel" aria-labelledby="tab-f2v" hidden>
+<div class="drop" id="fDrop" role="button" tabindex="0" aria-describedby="fFmts">
+<p class="dt" data-i18n="dropFrames"></p>
+<p data-i18n="orBrowse"></p>
+<p class="hint" id="fFmts" data-i18n="fmtFrames"></p>
+</div>
+<input type="file" id="fInput" accept="image/png,image/jpeg" multiple hidden>
+<p class="err" id="fErr" role="alert"></p>
+<div id="fWork" hidden>
+<p id="fCount"></p>
+<ol class="flist" id="fList"></ol>
+<p class="warn" id="fWarn" role="alert" hidden><span id="fWarnT"></span><button type="button" class="btn sm" id="fFit"></button></p>
+<p class="note" id="fFitNote"></p>
+<div class="row">
+<label for="fFps" data-i18n="fps"></label>
+<select id="fFps"></select>
+<input type="number" id="fFpsC" min="1" max="240" step="any" value="30" hidden aria-label="FPS">
+</div>
+<p class="err" id="fFpsErr" role="alert"></p>
+<p id="fEst"></p>
+<fieldset class="fs">
+<legend data-i18n="outFmt"></legend>
+<div id="fmtList"></div>
+<p class="note" id="fFmtMsg"></p>
+</fieldset>
+<div class="row">
+<button type="button" class="btn pri" id="fGo"></button>
+<button type="button" class="btn" id="fReset" data-i18n="reset"></button>
+</div>
+<div class="prog" id="fProg" hidden>
+<p class="stat" role="status"></p>
+<progress max="100" value="0"></progress>
+<div class="row sp"><span class="det"></span><span class="pct"></span><button type="button" class="btn sm cancel" data-i18n="cancel"></button></div>
+</div>
+<div id="fRes" hidden>
+<h2 data-i18n="preview"></h2>
+<div class="two">
+<video id="fVid" controls playsinline></video>
+<dl class="info" id="fInfo"></dl>
+</div>
+<div class="row"><a class="btn pri" id="fDl"></a></div>
+</div>
+</div>
+</section>
+<section class="about" aria-labelledby="aboutT">
+<h2 id="aboutT" data-i18n="aboutTitle"></h2>
+<p data-i18n="aboutIntro"></p>
+<div class="about-grid">
+<div>
+<h3 data-i18n="aboutV2FT"></h3>
+<p data-i18n="aboutV2F"></p>
+</div>
+<div>
+<h3 data-i18n="aboutF2VT"></h3>
+<p data-i18n="aboutF2V"></p>
+</div>
+<div>
+<h3 data-i18n="aboutPrivT"></h3>
+<p data-i18n="aboutPriv"></p>
+</div>
+<div>
+<h3 data-i18n="aboutLimitT"></h3>
+<p data-i18n="aboutLimit"></p>
+</div>
+</div>
+</section>
+</main>
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+<dialog id="modal" aria-labelledby="mTitle">
+<div class="m-in">
+<div><strong id="mTitle"></strong><span id="mTime"></span></div>
+<img id="mImg" alt="">
+<div class="row">
+<a class="btn pri" id="mDl" data-i18n="dlPng"></a>
+<button type="button" class="btn" id="mClose" data-i18n="close"></button>
+</div>
+</div>
+</dialog>
+<script src="script.js"></script>
+</body>
+</html>
